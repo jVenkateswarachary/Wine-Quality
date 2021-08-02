@@ -1,0 +1,59 @@
+import numpy as np
+import pandas as pd
+import seaborn as sns
+import sklearn
+import math
+
+train = pd.read_csv('../input/wine-quality/winequalityN.csv')
+train.head()
+train.isnull().sum()
+
+str(len(train.index))
+
+sns.countplot(x='type', data= train)
+train.info()
+
+train['fixed acidity']=train['fixed acidity'].fillna(train['fixed acidity'].mode()[0])
+train['volatile acidity']=train['volatile acidity'].fillna(train['volatile acidity'].mode()[0])
+train['citric acid']=train['citric acid'].fillna(train['citric acid'].mode()[0])
+train['residual sugar']=train['residual sugar'].fillna(train['residual sugar'].mode()[0])
+train['chlorides']=train['chlorides'].fillna(train['chlorides'].mode()[0])
+train['pH']=train['pH'].fillna(train['pH'].mode()[0])
+train['sulphates']=train['sulphates'].fillna(train['sulphates'].mode()[0])
+
+train.isnull().sum()
+
+Type = pd.get_dummies(train['type'],drop_first=True)
+Type
+
+train= pd.concat([train,Type],axis=1)
+
+train
+sns.countplot
+
+train.drop(['type'],axis=1, inplace=True)
+train.head()
+
+train['best quality']= [1 if i>7 else 0 for i in train.quality]
+x= train.drop(['best quality','quality'], axis =1)
+y= train['best quality']
+
+from sklearn.model_selection import train_test_split
+x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=.01, random_state=42)
+
+from sklearn.neighbors import KNeighborsClassifier
+model1= KNeighborsClassifier(n_neighbors =3)
+model1.fit(x_train,y_train)
+y_prediction1 = model1.predict(x_test)
+
+from sklearn.metrics import accuracy_score
+print("Accuracy score by KNN is", accuracy_score(y_test,y_prediction1))
+
+
+from sklearn.ensemble import RandomForestClassifier
+model2 = RandomForestClassifier(random_state =1)
+model2.fit(x_train,y_train)
+y_prediction2 = model2.predict(x_test)
+
+from sklearn.metrics import accuracy_score
+print("Accuracy score by random forest is ", accuracy_score(y_test, y_prediction2))
